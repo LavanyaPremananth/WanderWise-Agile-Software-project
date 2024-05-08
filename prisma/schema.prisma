@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id          String    @id
+  sessionData String
+  expiresAt   DateTime?
+}
+
+model User {
+  id           String    @id
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  email        String    @unique
+  username     String    @unique
+  passwordHash String
+  bookings     Booking[]
+}
+
+model Hotel {
+  id          String       @id
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  name        String
+  description String?
+  address     String
+  city        String?
+  country     String
+  imgSrc      String?
+  baseRating  Int?
+  hid         String       @unique
+  rooms       Room[]
+  hotelImage  HotelImage[]
+}
+
+model Room {
+  id          String    @id
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String
+  description String?
+  price       Int
+  featured    Boolean   @default(false)
+  hotel       Hotel     @relation(fields: [hotelId], references: [id])
+  hotelId     String
+  booking     Booking[]
+}
+
+model HotelImage {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  src       String
+  order     Int
+  hotel     Hotel    @relation(fields: [hotelId], references: [hid])
+  hotelId   String
+}
+
+model Booking {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  startDate DateTime
+  endDate   DateTime
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    String
+}
